@@ -1429,6 +1429,7 @@
             <a href="#testimonials">Client Reviews</a>
             <a href="#legal">Terms &amp; Legal</a>
             <a href="#contact">Contact Us</a>
+            <a href="app.html" style="color:var(--green-lt);">🔐 Admin Login</a>
           </div>
         </div>
 
@@ -1538,6 +1539,166 @@
         link.style.color = link.getAttribute('href') === '#' + current ? 'var(--green-lt)' : '';
       });
     });
+  </script>
+
+  <!-- ================================================
+       GST TAX HUB ASSISTANT (CHATBOT)
+  ================================================ -->
+  <style>
+    .gst-bot-launcher {
+      position: fixed; bottom: 28px; left: 24px; z-index: 998;
+      width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer;
+      background: var(--grad-green); color: #fff; font-size: 1.6rem;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 28px rgba(0,184,122,0.45); transition: var(--transition);
+    }
+    .gst-bot-launcher:hover { transform: translateY(-4px) scale(1.07); }
+    .gst-bot-window {
+      position: fixed; bottom: 100px; left: 24px; z-index: 999;
+      width: 340px; max-width: calc(100vw - 40px); height: 460px; max-height: 70vh;
+      background: #fff; border-radius: 18px; box-shadow: 0 24px 64px rgba(6,19,34,0.3);
+      display: none; flex-direction: column; overflow: hidden;
+      font-family: var(--font-body);
+    }
+    .gst-bot-window.open { display: flex; }
+    .gst-bot-header {
+      background: var(--grad-hero); color: #fff; padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .gst-bot-header .b-logo {
+      width: 36px; height: 36px; border-radius: 10px; background: var(--grad-green);
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem;
+    }
+    .gst-bot-header .b-title { font-weight: 800; font-size: 0.92rem; line-height: 1.2; }
+    .gst-bot-header .b-sub { font-size: 0.68rem; color: var(--green-lt); }
+    .gst-bot-close { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1.2rem; cursor: pointer; }
+    .gst-bot-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--gray-50); }
+    .gst-msg { max-width: 85%; padding: 10px 13px; border-radius: 14px; font-size: 0.84rem; line-height: 1.55; white-space: pre-line; }
+    .gst-msg.bot { background: #fff; border: 1px solid var(--gray-100); color: var(--gray-700); border-bottom-left-radius: 4px; align-self: flex-start; box-shadow: var(--shadow-sm); }
+    .gst-msg.user { background: var(--grad-blue); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+    .gst-quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 8px; background: var(--gray-50); }
+    .gst-quick button {
+      font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; cursor: pointer;
+      padding: 6px 12px; border-radius: 100px; border: 1px solid rgba(29,100,245,0.25);
+      background: rgba(29,100,245,0.06); color: var(--blue-mid); transition: var(--transition);
+    }
+    .gst-quick button:hover { background: var(--blue-mid); color: #fff; }
+    .gst-bot-input { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--gray-100); background: #fff; }
+    .gst-bot-input input {
+      flex: 1; padding: 10px 14px; border: 1.5px solid var(--gray-100); border-radius: 100px;
+      font-family: var(--font-body); font-size: 0.85rem; outline: none;
+    }
+    .gst-bot-input input:focus { border-color: var(--blue-mid); }
+    .gst-bot-input button {
+      border: none; cursor: pointer; background: var(--grad-green); color: #fff;
+      width: 40px; height: 40px; border-radius: 50%; font-size: 1rem; flex-shrink: 0;
+    }
+    .gst-msg.bot a.wa-link {
+      display: inline-block; margin-top: 8px; padding: 7px 14px; border-radius: 100px;
+      background: #25d366; color: #fff; font-weight: 700; font-size: 0.78rem;
+    }
+    @media (max-width: 600px) { .gst-bot-window { left: 12px; bottom: 92px; } .gst-bot-launcher { left: 16px; } }
+  </style>
+
+  <button class="gst-bot-launcher" id="gstBotLauncher" title="GST TAX HUB Assistant" aria-label="Open chat assistant">🤖</button>
+
+  <div class="gst-bot-window" id="gstBotWindow" role="dialog" aria-label="GST TAX HUB Assistant">
+    <div class="gst-bot-header">
+      <div class="b-logo">GST</div>
+      <div>
+        <div class="b-title">GST TAX HUB Assistant</div>
+        <div class="b-sub">● Online — Hindi / English</div>
+      </div>
+      <button class="gst-bot-close" id="gstBotClose" aria-label="Close chat">✕</button>
+    </div>
+    <div class="gst-bot-msgs" id="gstBotMsgs"></div>
+    <div class="gst-quick" id="gstQuick"></div>
+    <div class="gst-bot-input">
+      <input type="text" id="gstBotInput" placeholder="Apna sawal likhiye…" />
+      <button id="gstBotSend" aria-label="Send">➤</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var WA = 'https://wa.me/917088037692?text=';
+      var CONSULT = '\n\nWould you like a free consultation from GST TAX HUB?';
+      var waBtn = function (txt) {
+        return '<a class="wa-link" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(txt) + '">💬 Yes, WhatsApp Now</a>';
+      };
+
+      var KB = [
+        { keys: ['registration', 'register', 'gstin', 'naya gst'],
+          a: 'GST Registration zaroori hai agar aapka turnover ₹40 lakh (goods) ya ₹20 lakh (services) se zyada hai.\n\nDocuments needed: PAN, Aadhaar, photo, bank details, business address proof.\n\n✅ Hum sirf ₹999 me 3–5 din me GSTIN dila dete hain.' },
+        { keys: ['return', 'gstr', '3b', 'filing', 'file', 'late fee'],
+          a: 'GST Returns har month/quarter file karne hote hain:\n\n• GSTR-1 (sales) – 11th tak\n• GSTR-3B (tax payment) – 20th tak\n\nLate filing par ₹50–₹200/din penalty lagti hai aur ITC block ho sakta hai.\n\n✅ Hum sirf ₹499/month me time par filing karte hain, reminder ke saath.' },
+        { keys: ['itr', 'income tax', 'refund'],
+          a: 'ITR Filing sabke liye important hai – salaried, freelancer, business owner.\n\nTime par file karne se ₹5,000 penalty bachti hai aur refund jaldi milta hai. Due date usually 31 July hoti hai.\n\n✅ Hum ₹999 me complete ITR filing karte hain – deductions (80C, 80D, HRA) ke saath maximum refund.' },
+        { keys: ['tds', 'tcs', 'form 16', '24q', '26q'],
+          a: 'TDS (Tax Deducted at Source) salary, rent, contractor payments par katna hota hai aur har quarter return (24Q/26Q) file karna hota hai.\n\nLate deposit par 1.5% per month interest lagta hai.\n\n✅ Hum TDS calculation, challan, return filing aur Form 16/16A – sab handle karte hain.' },
+        { keys: ['price', 'pricing', 'cost', 'fees', 'charge', 'kitna', 'rate'],
+          a: 'Hamari transparent pricing:\n\n• GST Return Filing – ₹499/month\n• GST Registration – ₹999 one-time\n• ITR Filing – ₹999 one-time\n• Accounting & TDS – custom quote\n\nNo hidden charges! 💯' },
+        { keys: ['account', 'bookkeeping', 'balance sheet', 'books'],
+          a: 'Hum complete accounting services dete hain:\n\n• Daily bookkeeping & ledger\n• P&L aur Balance Sheet\n• Bank reconciliation\n• MIS reports\n\nSahi books se business decisions easy aur audits smooth hote hain. ✅' },
+        { keys: ['notice', 'penalty', 'demand', 'query'],
+          a: 'GST ya Income Tax notice aaya hai? Ghabraiye mat! 😊\n\nHum notice ka professional reply draft karte hain aur department se follow-up bhi. Time par sahi reply se penalty bach sakti hai.' },
+        { keys: ['contact', 'call', 'phone', 'number', 'baat'],
+          a: 'Aap humse direct baat kar sakte hain:\n\n📞 Call/WhatsApp: +91 7088037692\n✉️ Email: info@gsttaxhub.in\n🕐 Mon–Sat: 9 AM – 7 PM\n\nPAN India online service! 🇮🇳' },
+        { keys: ['hi', 'hello', 'namaste', 'hey', 'salam'],
+          a: 'Namaste! 🙏 Main GST TAX HUB Assistant hoon.\n\nAap mujhse GST registration, return filing, ITR, TDS ya accounting ke baare me kuch bhi pooch sakte hain – Hindi ya English me!' }
+      ];
+      var FALLBACK = 'Achha sawal hai! 😊 Iska exact jawab hamare expert Shobhit Ji denge.\n\nAap WhatsApp par directly pooch sakte hain – reply within 24 hours, bilkul free!';
+
+      var msgs = document.getElementById('gstBotMsgs');
+      var input = document.getElementById('gstBotInput');
+      var quick = document.getElementById('gstQuick');
+      var win = document.getElementById('gstBotWindow');
+
+      function addMsg(text, who, withWa, waText) {
+        var d = document.createElement('div');
+        d.className = 'gst-msg ' + who;
+        d.textContent = text;
+        if (withWa) d.innerHTML = d.innerHTML + waBtn(waText || 'Hi, I want a free consultation from GST TAX HUB');
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      function answer(q) {
+        var ql = q.toLowerCase();
+        var hit = null;
+        for (var i = 0; i < KB.length; i++) {
+          if (KB[i].keys.some(function (k) { return ql.indexOf(k) !== -1; })) { hit = KB[i]; break; }
+        }
+        var text = (hit ? hit.a : FALLBACK) + CONSULT;
+        setTimeout(function () { addMsg(text, 'bot', true, 'Hi, my question: ' + q); }, 450);
+      }
+
+      function send() {
+        var v = input.value.trim();
+        if (!v) return;
+        addMsg(v, 'user');
+        input.value = '';
+        answer(v);
+      }
+
+      var QUICKS = ['GST Registration', 'GST Return Filing', 'ITR Filing', 'TDS', 'Pricing'];
+      QUICKS.forEach(function (qv) {
+        var b = document.createElement('button');
+        b.textContent = qv;
+        b.onclick = function () { addMsg(qv, 'user'); answer(qv); };
+        quick.appendChild(b);
+      });
+
+      document.getElementById('gstBotSend').onclick = send;
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+      document.getElementById('gstBotLauncher').onclick = function () {
+        win.classList.toggle('open');
+        if (win.classList.contains('open') && !msgs.children.length) {
+          addMsg('Namaste! 🙏 Main GST TAX HUB Assistant hoon.\n\nGST, ITR, TDS ya accounting ka koi bhi sawal poochiye – Hindi ya English me. Neeche quick buttons bhi use kar sakte hain! 👇', 'bot');
+        }
+      };
+      document.getElementById('gstBotClose').onclick = function () { win.classList.remove('open'); };
+    })();
   </script>
 </body>
 </html>
