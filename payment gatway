@@ -1,0 +1,20 @@
+<button id="rzp-button1">Pay Now</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "YOUR_LIVE_KEY_ID", // Enter your Key ID
+    "amount": "50000", // Amount in paise (e.g., 50000 = ₹500)
+    "currency": "INR",
+    "name": "GSTTaxHub",
+    "description": "Tax Advisory Service",
+    "handler": function (response){
+        // Pass response.razorpay_payment_id to your backend to verify
+        alert("Payment Successful. ID: " + response.razorpay_payment_id);
+    }
+};
+var rzp1 = new Razorpay(options);
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
